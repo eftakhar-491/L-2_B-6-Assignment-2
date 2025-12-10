@@ -3,20 +3,19 @@ import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppError";
-import {
-  IsActive,
-  IsAdminActive,
-  IsDriverActive,
-  Role,
-} from "../modules/user/user.interface";
-import { Admin, Driver, Rider, User } from "../modules/user/user.model";
+
 import { verifyToken } from "../utils/jwt";
+import pool from "../config/db";
 
 export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization || req.cookies.accessToken;
+      const bearerToken = req.headers.authorization || req.cookies.accessToken;
+
+      const accessToken = bearerToken?.startsWith("Bearer ")
+        ? bearerToken.split(" ")[1]
+        : bearerToken;
 
       if (!accessToken) {
         throw new AppError(403, "No Token Recieved");
@@ -26,46 +25,17 @@ export const checkAuth =
         accessToken,
         envVars.JWT_ACCESS_SECRET as string
       ) as JwtPayload;
-      let Model: any;
-      switch (verifiedToken.role) {
-        case Role.ADMIN:
-          // Admin specific logic
-          Model = Admin;
-          break;
-        case Role.DRIVER:
-          // Driver specific logic
-          Model = Driver;
-          break;
-        case Role.RIDER:
-          // Rider specific logic
-          Model = Rider;
-          break;
-        default:
-          throw new AppError(httpStatus.FORBIDDEN, "Invalid user role");
-      }
 
-      const isUserExist = await Model.findOne({ email: verifiedToken.email });
+      const isUserExist = await pool
+        .query(
+          "SELECT id, name, email, phone, role FROM users WHERE email = $1",
+          [verifiedToken.email]
+        )
+        .then((res) => res.rows[0]);
+
       console.log("checkAuth", isUserExist);
       if (!isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
-      }
-      if (!isUserExist.isVerified) {
-        throw new AppError(httpStatus.BAD_REQUEST, "User is not verified");
-      }
-      if (
-        isUserExist.isActive === IsActive.BLOCK ||
-        isUserExist.isActive === IsDriverActive.SUSPENDED ||
-        isUserExist.isActive === IsDriverActive.REQUESTED ||
-        isUserExist.isActive === IsAdminActive.SUSPENDED ||
-        isUserExist.isActive === IsAdminActive.REQUESTED
-      ) {
-        throw new AppError(
-          httpStatus.BAD_REQUEST,
-          `User is ${isUserExist.isActive}`
-        );
-      }
-      if (isUserExist.isDeleted) {
-        throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
       }
 
       if (!authRoles.includes(verifiedToken.role)) {

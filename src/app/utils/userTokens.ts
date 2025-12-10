@@ -46,18 +46,6 @@ export const createNewAccessTokenWithRefreshToken = async (
   if (!isUserExist.rows.length) {
     throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
   }
-  // if (
-  //   isUserExist.isActive === IsActive.BLOCK ||
-  //   isUserExist.isActive === IsActive.INACTIVE
-  // ) {
-  //   throw new AppError(
-  //     httpStatus.BAD_REQUEST,
-  //     `User is ${isUserExist.isActive}`
-  //   );
-  // }
-  // if (isUserExist.rows[0].isDeleted) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, "User is deleted");
-  // }
 
   const jwtPayload = {
     userId: isUserExist.rows[0].id,

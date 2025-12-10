@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { router } from "./app/routes";
+import { initDB } from "./app/config/db";
 
 export const app = express();
 

@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: `postgresql://neondb_owner:npg_gI93BhJnKDsv@ep-soft-hall-a1s3op8w-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`,
+  connectionString: process.env.DATABASE_URL,
 });
 
 export const initDB = async () => {
@@ -18,7 +18,7 @@ export const initDB = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS Vehicles (
     id SERIAL PRIMARY KEY,
-    vehicle_number VARCHAR(50) NOT NULL UNIQUE,
+    vehicle_name VARCHAR(100) NOT NULL,
     type varchar(50) NOT NULL CHECK (type IN ('car', 'bike', 'van' , 'SUV')),
     registration_number VARCHAR(100) NOT NULL UNIQUE,
     daily_rent_price NUMERIC(10,2) NOT NULL CHECK (daily_rent_price > 0),
