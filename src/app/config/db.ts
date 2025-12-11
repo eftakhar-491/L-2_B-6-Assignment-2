@@ -6,10 +6,6 @@ const pool = new Pool({
 
 export const initDB = async () => {
   await pool.query(`
-    DROP SCHEMA public CASCADE;
-    CREATE SCHEMA public;
-    `);
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

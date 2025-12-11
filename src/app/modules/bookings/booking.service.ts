@@ -40,12 +40,11 @@ export const createBookings = async (payload: any) => {
     (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
   const total_price = days * Number(vehicle.daily_rent_price);
+  const rentStartDate = new Date(rent_start_date);
+  const rentEndDate = new Date(rent_end_date);
 
-  try {
-    await pool.query("BEGIN");
-
-    const bookingRes = await pool.query(
-      `
+  const bookingRes = await pool.query(
+    `
       INSERT INTO Bookings (
         customer_id, 
         vehicle_id,
@@ -57,30 +56,25 @@ export const createBookings = async (payload: any) => {
       VALUES ($1, $2, $3, $4, $5, 'active')
       RETURNING *
       `,
-      [customer_id, vehicle_id, rent_start_date, rent_end_date, total_price]
-    );
+    [customer_id, vehicle_id, rentStartDate, rentEndDate, total_price]
+  );
 
-    await pool.query(
-      `UPDATE Vehicles SET availability_status = 'booked' WHERE id = $1`,
-      [vehicle_id]
-    );
-
-    await pool.query("COMMIT");
-
-    return {
-      ...bookingRes.rows[0],
-      vehicle: {
-        vehicle_name: vehicle.vehicle_name,
-        daily_rent_price: vehicle.daily_rent_price,
-      },
-    };
-  } catch (err) {
-    await pool.query("ROLLBACK");
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Failed to create booking"
-    );
+  if (bookingRes.rowCount === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, "booking could not founded");
   }
+
+  await pool.query(
+    `UPDATE Vehicles SET availability_status = 'booked' WHERE id = $1`,
+    [vehicle_id]
+  );
+
+  return {
+    ...bookingRes.rows[0],
+    vehicle: {
+      vehicle_name: vehicle.vehicle_name,
+      daily_rent_price: vehicle.daily_rent_price,
+    },
+  };
 };
 
 export const getBookings = async (isAdmin: boolean, userId: number) => {
