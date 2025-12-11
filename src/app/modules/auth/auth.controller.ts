@@ -20,9 +20,6 @@ const signup = catchAsync(
         "User creation failed"
       );
     }
-    // const userTokens = await createUserTokens(user);
-
-    // setAuthCookie(res, userTokens);
 
     sendResponse(res, {
       success: true,
@@ -40,6 +37,10 @@ const signin = catchAsync(
     const userTokens = await createUserTokens(user);
 
     setAuthCookie(res, userTokens);
+
+    if (!user) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
 
     sendResponse(res, {
       success: true,
