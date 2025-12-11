@@ -5,7 +5,7 @@ import { VehiclesService } from "./vehicles.service";
 
 const addNewVehicles = catchAsync(async (req, res) => {
   // Logic to create a vehicle
-  console.log("req.body", req.body, req.user);
+
   const vehicle = await VehiclesService.addNewVehicles(req.body);
 
   sendResponse(res, {

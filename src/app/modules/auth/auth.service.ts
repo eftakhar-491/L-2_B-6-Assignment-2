@@ -1,6 +1,5 @@
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 
 type IUser = {
@@ -11,10 +10,8 @@ type IUser = {
   phone: string;
 };
 
-// import { sendEmail } from "../../utils/sendEmail";
-import { createNewAccessTokenWithRefreshToken } from "../../utils/userTokens";
 import AppError from "../../errorHelpers/AppError";
-import { name } from "ejs";
+
 import pool from "../../config/db";
 
 const signup = async (payload: IUser) => {
@@ -79,7 +76,7 @@ const signin = async (payload: Partial<IUser>) => {
   }
 
   const { password: _, ...userWithoutPassword } = user;
-  console.log("User from service:", userWithoutPassword);
+
   return userWithoutPassword;
 };
 

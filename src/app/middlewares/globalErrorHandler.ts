@@ -9,7 +9,6 @@ export const globalErrorHandler = (
   next: NextFunction
 ) => {
   if (envVars.NODE_ENV === "development") {
-    console.log("🔥 Global Error Handler:", err);
   }
 
   let statusCode = 500;

@@ -33,7 +33,6 @@ export const checkAuth =
         )
         .then((res) => res.rows[0]);
 
-      console.log("checkAuth", isUserExist);
       if (!isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
       }
@@ -44,7 +43,6 @@ export const checkAuth =
       req.user = verifiedToken;
       next();
     } catch (error) {
-      console.log("jwt error", error);
       next(error);
     }
   };

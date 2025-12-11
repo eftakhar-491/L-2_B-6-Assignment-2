@@ -33,7 +33,7 @@ const signin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     //
     const user = await AuthServices.signin(req.body);
-    console.log("User from controller:", user);
+
     const userTokens = await createUserTokens(user);
 
     setAuthCookie(res, userTokens);
