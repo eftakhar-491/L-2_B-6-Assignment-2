@@ -5,6 +5,7 @@ import { router } from "./app/routes";
 
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
+import { initDB } from "./app/config/db";
 
 export const app = express();
 
@@ -21,6 +22,7 @@ app.use(
 );
 
 app.get("/", (req, res) => {
+  initDB();
   res.send({
     message: "Welcome to the APP, this is a ride sharing service",
     success: true,
