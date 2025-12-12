@@ -3,11 +3,12 @@ let server: Server;
 
 import { app } from "./app";
 import { envVars } from "./app/config/env";
+import { initDB } from "./app/config/db";
 
 const startServer = async () => {
   try {
-    // console.log("✅✅✅✅ Connected to DB!!");
-
+    await initDB();
+    console.log("✅✅✅✅ Connected to DB!!");
     server = app.listen(envVars.PORT, () => {
       console.log(
         `✅✅✅✅ Server is listening to http://localhost:${envVars.PORT} `
